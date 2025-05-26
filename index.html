@@ -18,7 +18,7 @@
     }
     .container {
       width: 95%;
-      max-width: 1200px;
+      max-width: 1400px;
       background: white;
       padding: 30px;
       border-radius: 20px;
@@ -94,15 +94,41 @@
     ul#components li {
       margin: 5px 0;
     }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h2>LCOH Calculator - European System</h2>
 
-    <h3>General Inputs</h3>
-    <!-- General Inputs Here -->
-    <!-- ... Existing fields ... -->
+    <h3>General & OPEX Inputs</h3>
+    <div class="grid">
+      <div class="field"><label for="capex">CAPEX (€)</label><input type="number" id="capex" value="1000000"></div>
+      <div class="field"><label for="stackReplacement">Stack Replacement (€)</label><input type="number" id="stackReplacement" value="50000"></div>
+      <div class="field"><label for="insurance">Insurance (€)</label><input type="number" id="insurance" value="30000"></div>
+      <div class="field"><label for="maintenance">Maintenance (€)</label><input type="number" id="maintenance" value="40000"></div>
+      <div class="field"><label for="water">Water Cost (€)</label><input type="number" id="water" value="20000"></div>
+      <div class="field"><label for="electricity">Electricity Cost (€)</label><input type="number" id="electricity" value="250000"></div>
+      <div class="field"><label for="compression">Compression Cost (€)</label><input type="number" id="compression" value="60000"></div>
+      <div class="field"><label for="building">Building Cost (€)</label><input type="number" id="building" value="30000"></div>
+      <div class="field"><label for="epc">EPC Cost (€)</label><input type="number" id="epc" value="50000"></div>
+      <div class="field"><label for="totalH2">Annual H2 Production (kg)</label><input type="number" id="totalH2" value="100000"></div>
+    </div>
+
+    <h3>Finance Assumptions</h3>
+    <div class="grid">
+      <div class="field"><label for="interest">Interest Rate (%)</label><input type="number" id="interest" value="6"></div>
+      <div class="field"><label for="lifetime">Project Lifetime (years)</label><input type="number" id="lifetime" value="20"></div>
+    </div>
+
+    <h3>Pressure Parameters</h3>
+    <div class="grid">
+      <div class="field"><label for="pressure">Operating Pressure (bar)</label><input type="number" id="pressure" value="30"></div>
+    </div>
 
     <div style="text-align:center">
       <button onclick="calculateLCOH()">Calculate LCOH</button>
@@ -120,42 +146,47 @@
     let chart;
 
     function calculateLCOH() {
-      // Example placeholder data for chart
+      const fields = ['capex', 'stackReplacement', 'insurance', 'maintenance', 'water', 'electricity', 'compression', 'building', 'epc'];
+      const totalH2 = parseFloat(document.getElementById('totalH2').value);
+      const interest = parseFloat(document.getElementById('interest').value);
+      const lifetime = parseFloat(document.getElementById('lifetime').value);
+      const pressure = parseFloat(document.getElementById('pressure').value);
+
+      const costs = fields.map(id => parseFloat(document.getElementById(id).value));
+      const capexAnnual = costs[0] * ((interest / 100) / (1 - Math.pow(1 + (interest / 100), -lifetime)));
+      const pressureFactor = pressure > 30 ? 1.1 : 1.0;
+
+      const values = [capexAnnual, ...costs.slice(1)].map(val => (val * pressureFactor) / totalH2);
+
       const labels = [
-        'CAPEX Depreciation',
+        'CAPEX Annualized',
         'Stack Replacement',
         'Insurance',
         'Maintenance',
         'Water',
         'Electricity',
-        'Compression'
+        'Compression',
+        'Building',
+        'EPC'
       ];
-      const values = [0.15, 0.05, 0.03, 0.04, 0.02, 0.5, 0.1];
-      const colors = ['#4caf50', '#81c784', '#a5d6a7', '#c8e6c9', '#e8f5e9', '#66bb6a', '#388e3c'];
 
-      const resultText = document.getElementById("result");
-      const componentsList = document.getElementById("components");
-      const chartCanvas = document.getElementById("lcohChart");
+      const colors = ['#4caf50', '#81c784', '#a5d6a7', '#c8e6c9', '#e8f5e9', '#66bb6a', '#388e3c', '#aed581', '#7cb342'];
 
-      resultText.innerText = `LCOH: €${values.reduce((a, b) => a + b, 0).toFixed(2)} /kgH2`;
-      componentsList.innerHTML = labels.map((label, i) => `<li><strong>${label}</strong>: €${values[i].toFixed(3)} /kgH2</li>`).join('');
+      const totalLCOH = values.reduce((a, b) => a + b, 0);
+
+      document.getElementById("result").innerText = `LCOH: €${totalLCOH.toFixed(2)} /kgH2`;
+      document.getElementById("components").innerHTML = labels.map((label, i) => `<li><strong>${label}</strong>: €${values[i].toFixed(3)} /kgH2</li>`).join('');
 
       if (chart) chart.destroy();
-      chart = new Chart(chartCanvas, {
+      chart = new Chart(document.getElementById("lcohChart"), {
         type: 'pie',
         data: {
           labels: labels,
-          datasets: [{
-            data: values,
-            backgroundColor: colors
-          }]
+          datasets: [{ data: values, backgroundColor: colors }]
         },
         options: {
           plugins: {
-            legend: {
-              position: 'right',
-              labels: { color: '#2e7d32', font: { size: 14 } }
-            },
+            legend: { position: 'right', labels: { color: '#2e7d32', font: { size: 14 } } },
             tooltip: {
               callbacks: {
                 label: function(context) {

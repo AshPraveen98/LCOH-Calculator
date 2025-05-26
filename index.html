@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title style="color: green;">LCOH Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+    }
+    .wrapper {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+      width: 100%;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: green;
+      text-align: center;
+    }
+    .input-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    .charts-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    canvas {
+      max-width: 100%;
+      height: auto;
+      flex: 1 1 300px;
+    }
+    #result {
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+      font-size: 1.1rem;
+      word-wrap: break-word;
+    }
+    button, select {
+      padding: 10px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>LCOH Dashboard</h1>
+    <div class="input-container">
+      <div class="input-group"><label>Base Cost (INR)</label><input id="baseCost" type="number" value="0" /></div>
+      <div class="input-group"><label>Compressor Cost (INR)</label><input id="compressorCost" type="number" value="0" /></div>
+      <div class="input-group"><label>EPC (INR)</label><input id="epc" type="number" value="0" /></div>
+      <div class="input-group"><label>Building (INR)</label><input id="building" type="number" value="0" /></div>
+      <div class="input-group"><label>Stack Replacement (INR)</label><input id="stackReplacement" type="number" value="0" /></div>
+      <div class="input-group"><label>Pressure (bar)</label><input id="pressure" type="number" value="0" /></div>
+      <div class="input-group"><label>Compressor Efficiency (%)</label><input id="compressorEfficiency" type="number" value="100" /></div>
+      <div class="input-group"><label>Tax (%)</label><input id="tax" type="number" value="0" /></div>
+      <div class="input-group"><label>Subsidy (INR)</label><input id="subsidy" type="number" value="0" /></div>
+      <div class="input-group"><label>Currency</label><select id="currencySelect" onchange="convertCurrency()"><option value="INR">INR</option><option value="EUR">EUR</option></select></div>
+    </div>
+    <div id="result">LCOH: ₹0.00 / kg H₂</div>
+    <div style="text-align: center;">
+      <button onclick="calculateLCOH()">Recalculate</button>
+      <button onclick="downloadCSV()">Download CSV</button>
+    </div>
+    <div class="charts-container">
+      <canvas id="costChart"></canvas>
+      <canvas id="pressureChart"></canvas>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

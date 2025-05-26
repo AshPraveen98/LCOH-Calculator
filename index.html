@@ -144,12 +144,13 @@
       const annuityFactor = (discountRate * Math.pow(1 + discountRate, lifetime)) / (Math.pow(1 + discountRate, lifetime) - 1);
 
       const electricityCostPerKg = (electricityPrice / 1000) * (1 / efficiency) * 55.5;
-      const baseCapexPerKg = (capex * annuityFactor) / ((fullLoadHours * efficiency) / 55.5);
+      const totalHydrogenProduced = (fullLoadHours * efficiency * lifetime) / 55.5;
+      const baseCapexPerKg = (capex * annuityFactor) / totalHydrogenProduced;
       const opexPerKg = baseCapexPerKg * 0.03;
 
       const numReplacements = Math.floor(lifetime / replacementFrequency);
       const totalReplacementCost = capex * (stackReplacementPercent / 100) * numReplacements;
-      const replacementPerKg = (totalReplacementCost * annuityFactor) / ((fullLoadHours * efficiency) / 55.5);
+      const replacementPerKg = (totalReplacementCost * annuityFactor) / totalHydrogenProduced;
 
       const waterCostPerKg = waterCost * waterConsumption;
       const lcohGross = electricityCostPerKg + baseCapexPerKg + opexPerKg + replacementPerKg + waterCostPerKg;

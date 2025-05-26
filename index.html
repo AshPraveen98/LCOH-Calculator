@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title style="color:green">LCOH Calculator Dashboard</title>
+  <title style="color: green;">LCOH Calculator Dashboard</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -23,16 +23,11 @@
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
     }
     h2 {
-      text-align: center;
       color: green;
       font-size: 2em;
-    }
-    h3 {
-      text-align: center;
-      margin-top: 30px;
-      color: #333;
     }
     .field {
       margin-bottom: 15px;
@@ -42,13 +37,16 @@
       font-weight: bold;
       color: #333;
     }
-    .field input {
+    .field input, .field select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       border: 1px solid #bbb;
       border-radius: 8px;
       font-size: 1em;
+    }
+    .currency-toggle {
+      margin-bottom: 20px;
     }
     #result {
       margin-top: 20px;
@@ -78,21 +76,15 @@
     button:hover {
       background-color: #2e7d32;
     }
-    canvas {
+    .chart-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
       margin-top: 30px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
+    }
+    canvas {
       max-width: 500px;
-    }
-    ul#components {
-      list-style: none;
-      padding: 0;
-      text-align: center;
-      font-size: 1em;
-    }
-    ul#components li {
-      margin: 5px 0;
+      width: 100%;
     }
     .grid {
       display: grid;
@@ -103,121 +95,183 @@
 </head>
 <body>
   <div class="container">
-    <h2>LCOH Calculator - European System</h2>
-
-    <h3>General & OPEX Inputs</h3>
-    <div class="grid">
-      <div class="field"><label for="capex">CAPEX (€)</label><input type="number" id="capex" value="1000000"></div>
-      <div class="field"><label for="stackReplacement">Stack Replacement (€)</label><input type="number" id="stackReplacement" value="50000"></div>
-      <div class="field"><label for="insurance">Insurance (€)</label><input type="number" id="insurance" value="30000"></div>
-      <div class="field"><label for="maintenance">Maintenance (€)</label><input type="number" id="maintenance" value="40000"></div>
-      <div class="field"><label for="water">Water Cost (€)</label><input type="number" id="water" value="20000"></div>
-      <div class="field"><label for="electricity">Electricity Cost (€)</label><input type="number" id="electricity" value="250000"></div>
-      <div class="field"><label for="compression">Compression Cost (€)</label><input type="number" id="compression" value="60000"></div>
-      <div class="field"><label for="building">Building Cost (€)</label><input type="number" id="building" value="30000"></div>
-      <div class="field"><label for="epc">EPC Cost (€)</label><input type="number" id="epc" value="50000"></div>
-      <div class="field"><label for="totalH2">Annual H2 Production (kg)</label><input type="number" id="totalH2" value="100000"></div>
+    <h2>LCOH Calculator - Indian System</h2>
+    <div class="currency-toggle">
+      <label>
+        Currency:
+        <select id="currencySelect" onchange="convertCurrency(); calculateLCOH();">
+          <option value="INR">INR (₹)</option>
+          <option value="EUR">EUR (€)</option>
+        </select>
+      </label>
     </div>
 
-    <h3>Finance Assumptions</h3>
-    <div class="grid">
-      <div class="field"><label for="interest">Interest Rate (%)</label><input type="number" id="interest" value="6"></div>
-      <div class="field"><label for="lifetime">Project Lifetime (years)</label><input type="number" id="lifetime" value="20"></div>
+    <div class="field">
+      <label for="baseCost">Base Cost per kg (₹ or €)</label>
+      <input type="number" id="baseCost" value="300" oninput="calculateLCOH()" />
     </div>
 
-    <h3>Pressure Parameters</h3>
-    <div class="grid">
-      <div class="field"><label for="pressure">Operating Pressure (bar)</label><input type="number" id="pressure" value="30"></div>
+    <div class="field">
+      <label for="pressure">Hydrogen Pressure (bar)</label>
+      <input type="number" id="pressure" value="30" oninput="calculateLCOH()" />
     </div>
 
-    <div style="text-align:center">
-      <button onclick="calculateLCOH()">Calculate LCOH</button>
-      <button onclick="downloadCSV()">Download CSV</button>
+    <div class="field">
+      <label for="compressorEfficiency">Compressor Efficiency (%)</label>
+      <input type="number" id="compressorEfficiency" value="85" oninput="calculateLCOH()" />
     </div>
 
-    <div class="output-box" id="outputDetails">
-      <div id="result">LCOH: - €/kgH2</div>
-      <ul id="components"></ul>
-      <canvas id="lcohChart" width="400" height="200"></canvas>
+    <div class="field">
+      <label for="tax">Taxes (%)</label>
+      <input type="number" id="tax" value="5" oninput="calculateLCOH()" />
     </div>
-  </div>
+    <div class="field">
+      <label for="subsidy">Subsidy (₹ or €)</label>
+      <input type="number" id="subsidy" value="20" oninput="calculateLCOH()" />
+    </div>
 
-  <script>
-    let chart;
+    <div class="output-box" id="result"></div>
 
-    function calculateLCOH() {
-      const fields = ['capex', 'stackReplacement', 'insurance', 'maintenance', 'water', 'electricity', 'compression', 'building', 'epc'];
-      const totalH2 = parseFloat(document.getElementById('totalH2').value);
-      const interest = parseFloat(document.getElementById('interest').value);
-      const lifetime = parseFloat(document.getElementById('lifetime').value);
-      const pressure = parseFloat(document.getElementById('pressure').value);
+    <div class="chart-container">
+      <canvas id="costChart"></canvas>
+      <canvas id="pressureChart"></canvas>
+    </div>
 
-      const costs = fields.map(id => parseFloat(document.getElementById(id).value));
-      const capexAnnual = costs[0] * ((interest / 100) / (1 - Math.pow(1 + (interest / 100), -lifetime)));
-      const pressureFactor = pressure > 30 ? 1.1 : 1.0;
+    <script>
+      let currentCurrency = 'INR';
+      const conversionRate = 0.011;
 
-      const values = [capexAnnual, ...costs.slice(1)].map(val => (val * pressureFactor) / totalH2);
+      function convertCurrency() {
+        const selected = document.getElementById('currencySelect').value;
+        const inputs = document.querySelectorAll('input[type="number"]');
 
-      const labels = [
-        'CAPEX Annualized',
-        'Stack Replacement',
-        'Insurance',
-        'Maintenance',
-        'Water',
-        'Electricity',
-        'Compression',
-        'Building',
-        'EPC'
-      ];
+        if (selected !== currentCurrency) {
+          inputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) {
+              input.value = selected === 'EUR' ? (value * conversionRate).toFixed(2) : (value / conversionRate).toFixed(2);
+            }
+          });
+          currentCurrency = selected;
+          updateLabels();
+        }
+      }
 
-      const colors = ['#4caf50', '#81c784', '#a5d6a7', '#c8e6c9', '#e8f5e9', '#66bb6a', '#388e3c', '#aed581', '#7cb342'];
+      function updateLabels() {
+        const symbol = currentCurrency === 'INR' ? '₹' : '€';
+        const labels = document.querySelectorAll('label');
+        labels.forEach(label => {
+          label.innerHTML = label.innerHTML.replace(/₹|€/g, symbol);
+        });
+      }
 
-      const totalLCOH = values.reduce((a, b) => a + b, 0);
+      function calculateLCOH() {
+        const baseCost = parseFloat(document.getElementById('baseCost').value) || 0;
+        const pressure = parseFloat(document.getElementById('pressure').value) || 0;
+        const taxPercent = parseFloat(document.getElementById('tax').value) || 0;
+        const subsidy = parseFloat(document.getElementById('subsidy').value) || 0;
+        const compressorEfficiency = parseFloat(document.getElementById('compressorEfficiency').value) || 100;
 
-      document.getElementById("result").innerText = `LCOH: €${totalLCOH.toFixed(2)} /kgH2`;
-      document.getElementById("components").innerHTML = labels.map((label, i) => `<li><strong>${label}</strong>: €${values[i].toFixed(3)} /kgH2</li>`).join('');
+        let pressureCost = 0;
+        if (pressure > 30) {
+          if (pressure <= 100) {
+            pressureCost = Math.log(pressure / 30) * (100 / compressorEfficiency);
+          } else {
+            pressureCost = Math.log(pressure / 100) * (150 / compressorEfficiency) + Math.log(100 / 30) * (100 / compressorEfficiency);
+          }
+        }
 
-      if (chart) chart.destroy();
-      chart = new Chart(document.getElementById("lcohChart"), {
-        type: 'pie',
-        data: {
-          labels: labels,
-          datasets: [{ data: values, backgroundColor: colors }]
-        },
-        options: {
-          plugins: {
-            legend: { position: 'right', labels: { color: '#2e7d32', font: { size: 14 } } },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const label = context.label || '';
-                  const value = context.parsed;
-                  return `${label}: €${value.toFixed(3)} /kgH2`;
+        const taxAmount = (taxPercent / 100) * (baseCost + pressureCost);
+        const finalCost = baseCost + pressureCost + taxAmount - subsidy;
+
+        const currencySymbol = currentCurrency === 'INR' ? '₹' : '€';
+        document.getElementById('result').innerText = `Final LCOH: ${currencySymbol}${finalCost.toFixed(2)} per kg`;
+
+        drawPieChart([baseCost, pressureCost, taxAmount, -subsidy], ['Base Cost', 'Pressure Cost', 'Tax', 'Subsidy']);
+        drawPressureChart();
+      }
+
+      function drawPieChart(data, labels) {
+        const ctx = document.getElementById('costChart').getContext('2d');
+        if (window.costChartInstance) window.costChartInstance.destroy();
+        window.costChartInstance = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: ['#4caf50', '#9c27b0', '#ff9800', '#03a9f4']
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return `${context.label}: ${currentCurrency === 'INR' ? '₹' : '€'}${context.parsed.toFixed(2)}`;
+                  }
                 }
               }
             }
           }
-        }
-      });
+        });
+      }
 
-      window.generatedCSV = [
-        ['Component', 'Value (€/kgH2)'],
-        ...labels.map((label, i) => [label, values[i].toFixed(6)])
-      ];
-    }
+      function drawPressureChart() {
+        const ctx = document.getElementById('pressureChart').getContext('2d');
+        if (window.pressureChartInstance) window.pressureChartInstance.destroy();
 
-    function downloadCSV() {
-      if (!window.generatedCSV) return;
-      let csvContent = "data:text/csv;charset=utf-8," +
-        window.generatedCSV.map(e => e.join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "lcoh_results.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  </script>
+        const compressorEfficiency = parseFloat(document.getElementById('compressorEfficiency').value) || 100;
+        const pressures = Array.from({ length: 171 }, (_, i) => i + 30); // 30 to 200 bar
+        const costs = pressures.map(p => {
+          if (p > 30 && p <= 100) {
+            return Math.log(p / 30) * (100 / compressorEfficiency);
+          } else if (p > 100) {
+            return Math.log(p / 100) * (150 / compressorEfficiency) + Math.log(100 / 30) * (100 / compressorEfficiency);
+          }
+          return 0;
+        });
+
+        window.pressureChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: pressures,
+            datasets: [{
+              label: 'Pressure-based Cost (₹ or €)',
+              data: costs,
+              fill: false,
+              borderColor: '#ff5722',
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Pressure (bar)'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Cost'
+                }
+              }
+            }
+          }
+        });
+      }
+
+      window.onload = () => {
+        calculateLCOH();
+      };
+    </script>
+  </div>
 </body>
 </html>

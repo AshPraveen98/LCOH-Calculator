@@ -13,6 +13,7 @@
       max-width: 800px;
       margin: auto;
     }
+
     h1 {
       text-align: center;
       color: #006400;
@@ -142,9 +143,9 @@
       const additionalRevenue = parseFloat(document.getElementById('additionalRevenue').value);
 
       const annuityFactor = (discountRate * Math.pow(1 + discountRate, lifetime)) / (Math.pow(1 + discountRate, lifetime) - 1);
+      const totalHydrogenProduced = (fullLoadHours * efficiency * lifetime) / 55.5;
 
       const electricityCostPerKg = (electricityPrice / 1000) * (1 / efficiency) * 55.5;
-      const totalHydrogenProduced = (fullLoadHours * efficiency * lifetime) / 55.5;
       const baseCapexPerKg = (capex * annuityFactor) / totalHydrogenProduced;
       const opexPerKg = baseCapexPerKg * 0.03;
 

@@ -2,116 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LCOH Calculator - Green Hydrogen</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-      color: #006400;
-    }
-    .input-group {
-      display: flex;
-      justify-content: space-between;
-      margin: 10px 0;
-    }
-    label {
-      flex: 1;
-    }
-    input {
-      flex: 1;
-      padding: 5px;
-    }
-    button {
-      background-color: #28a745;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .result {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-top: 20px;
-    }
-    canvas {
-      max-width: 100%;
-      margin-top: 30px;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; max-width: 900px; margin: auto; }
+    h1 { text-align: center; color: #006400; }
+    .input-group { display: flex; justify-content: space-between; margin: 10px 0; }
+    label { flex: 1; }
+    input { flex: 1; padding: 5px; }
+    button { background-color: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px; }
+    .result { background: #fff; border: 1px solid #ccc; padding: 15px; margin-top: 20px; }
+    canvas { max-width: 100%; margin-top: 30px; }
   </style>
 </head>
 <body>
   <h1>LCOH Calculator - Green Hydrogen</h1>
-
   <form id="lcohForm">
-    <h2>Step 1: System and Cost Inputs</h2>
-    <div class="input-group">
-      <label for="capex">CAPEX Electrolyzer (€/kW):</label>
-      <input type="number" id="capex" value="800" required />
-    </div>
-    <div class="input-group">
-      <label for="stackReplacement">Stack Replacement Cost (% of CAPEX):</label>
-      <input type="number" id="stackReplacement" value="15" required />
-    </div>
-    <div class="input-group">
-      <label for="replacementFrequency">Replacement Frequency (years):</label>
-      <input type="number" id="replacementFrequency" value="7" required />
-    </div>
+    <h2>System and Cost Inputs</h2>
+    <div class="input-group"><label>CAPEX Electrolyzer (€/kW):</label><input type="number" id="capex" value="800"/></div>
+    <div class="input-group"><label>Stack Replacement Cost (% of CAPEX):</label><input type="number" id="stackReplacement" value="15"/></div>
+    <div class="input-group"><label>Replacement Frequency (years):</label><input type="number" id="replacementFrequency" value="7"/></div>
 
-    <h2>Step 2: Operation and Energy Inputs</h2>
-    <div class="input-group">
-      <label for="electricity">Electricity Price (€/MWh):</label>
-      <input type="number" id="electricity" value="70" required />
-    </div>
-    <div class="input-group">
-      <label for="efficiency">Efficiency (%):</label>
-      <input type="number" id="efficiency" value="80" required />
-    </div>
-    <div class="input-group">
-      <label for="fullLoad">Full Load Hours (hours/year):</label>
-      <input type="number" id="fullLoad" value="4000" required />
-    </div>
-    <div class="input-group">
-      <label for="lifetime">System Lifetime (years):</label>
-      <input type="number" id="lifetime" value="20" required />
-    </div>
-    <div class="input-group">
-      <label for="discountRate">Discount Rate (%):</label>
-      <input type="number" id="discountRate" value="7" required />
-    </div>
+    <h2>Operation and Energy Inputs</h2>
+    <div class="input-group"><label>Electricity Price (€/MWh):</label><input type="number" id="electricity" value="70"/></div>
+    <div class="input-group"><label>Efficiency (%):</label><input type="number" id="efficiency" value="80"/></div>
+    <div class="input-group"><label>Full Load Hours (hours/year):</label><input type="number" id="fullLoad" value="4000"/></div>
+    <div class="input-group"><label>System Lifetime (years):</label><input type="number" id="lifetime" value="20"/></div>
+    <div class="input-group"><label>Discount Rate (%):</label><input type="number" id="discountRate" value="7"/></div>
 
-    <h2>Step 3: Revenue and Water Inputs</h2>
-    <div class="input-group">
-      <label for="o2Revenue">O₂ Sale Revenue (€/kg H₂):</label>
-      <input type="number" id="o2Revenue" value="0.5" required />
-    </div>
-    <div class="input-group">
-      <label for="waterCost">Water Cost (€/m³):</label>
-      <input type="number" id="waterCost" value="2" required />
-    </div>
-    <div class="input-group">
-      <label for="waterConsumption">Water Consumption (L/kg H₂):</label>
-      <input type="number" id="waterConsumption" value="10" required />
-    </div>
+    <h2>Compression Parameters</h2>
+    <div class="input-group"><label>Compressor Output Pressure (bar):</label><input type="number" id="pOut" value="350"/></div>
+    <div class="input-group"><label>Compressor Input Pressure (bar):</label><input type="number" id="pIn" value="30"/></div>
+    <div class="input-group"><label>Compression Stages:</label><input type="number" id="stages" value="2"/></div>
+    <div class="input-group"><label>Adiabatic Coefficient (k):</label><input type="number" id="k" value="1.4"/></div>
+    <div class="input-group"><label>Ambient Temperature (K):</label><input type="number" id="temp" value="298"/></div>
+    <div class="input-group"><label>Specific Heat of H₂ (kJ/kg·K):</label><input type="number" id="cp" value="14.3"/></div>
 
-    <h2>Step 4: Financial Assumptions</h2>
-    <div class="input-group">
-      <label for="co2Price">CO₂ Credit (€/kg H₂):</label>
-      <input type="number" id="co2Price" value="0" required />
-    </div>
-    <div class="input-group">
-      <label for="additionalRevenue">Other Revenue (€/kg H₂):</label>
-      <input type="number" id="additionalRevenue" value="0" required />
-    </div>
+    <h2>Revenue and Water Inputs</h2>
+    <div class="input-group"><label>O₂ Sale Revenue (€/kg H₂):</label><input type="number" id="o2Revenue" value="0.5"/></div>
+    <div class="input-group"><label>Water Cost (€/m³):</label><input type="number" id="waterCost" value="2"/></div>
+    <div class="input-group"><label>Water Consumption (L/kg H₂):</label><input type="number" id="waterConsumption" value="10"/></div>
+
+    <h2>Financial Credits</h2>
+    <div class="input-group"><label>CO₂ Credit (€/kg H₂):</label><input type="number" id="co2Price" value="0"/></div>
+    <div class="input-group"><label>Other Revenue (€/kg H₂):</label><input type="number" id="additionalRevenue" value="0"/></div>
 
     <button type="submit">Calculate LCOH</button>
   </form>
@@ -125,77 +60,63 @@
     document.getElementById('lcohForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const capex = parseFloat(document.getElementById('capex').value);
-      const stackReplacementPercent = parseFloat(document.getElementById('stackReplacement').value);
-      const replacementFrequency = parseFloat(document.getElementById('replacementFrequency').value);
-      const electricityPrice = parseFloat(document.getElementById('electricity').value);
-      const efficiency = parseFloat(document.getElementById('efficiency').value) / 100;
-      const fullLoadHours = parseFloat(document.getElementById('fullLoad').value);
-      const lifetime = parseFloat(document.getElementById('lifetime').value);
-      const discountRate = parseFloat(document.getElementById('discountRate').value) / 100;
+      const get = id => parseFloat(document.getElementById(id).value);
+      const capex = get('capex'), stackReplacement = get('stackReplacement'), replacementFreq = get('replacementFrequency');
+      const electricityPrice = get('electricity'), efficiency = get('efficiency') / 100;
+      const fullLoadHours = get('fullLoad'), lifetime = get('lifetime'), discountRate = get('discountRate') / 100;
 
-      const o2Revenue = parseFloat(document.getElementById('o2Revenue').value);
-      const waterCost = parseFloat(document.getElementById('waterCost').value);
-      const waterConsumption = parseFloat(document.getElementById('waterConsumption').value) / 1000;
+      const pOut = get('pOut'), pIn = get('pIn'), stages = get('stages'), k = get('k'), T = get('temp'), cp = get('cp');
+      const o2Revenue = get('o2Revenue'), waterCost = get('waterCost'), waterConsumption = get('waterConsumption') / 1000;
+      const co2Price = get('co2Price'), additionalRevenue = get('additionalRevenue');
 
-      const co2Price = parseFloat(document.getElementById('co2Price').value);
-      const additionalRevenue = parseFloat(document.getElementById('additionalRevenue').value);
-
-      const annuityFactor = (discountRate * Math.pow(1 + discountRate, lifetime)) / (Math.pow(1 + discountRate, lifetime) - 1);
-      const totalHydrogenProduced = (fullLoadHours * efficiency * lifetime) / 55.5;
-
+      const annuity = (discountRate * Math.pow(1 + discountRate, lifetime)) / (Math.pow(1 + discountRate, lifetime) - 1);
+      const totalHydrogen = (fullLoadHours * efficiency * lifetime) / 55.5;
       const electricityCostPerKg = (electricityPrice / 1000) * (1 / efficiency) * 55.5;
-      const baseCapexPerKg = (capex * annuityFactor) / totalHydrogenProduced;
-      const opexPerKg = baseCapexPerKg * 0.03;
-
-      const numReplacements = Math.floor(lifetime / replacementFrequency);
-      const totalReplacementCost = capex * (stackReplacementPercent / 100) * numReplacements;
-      const replacementPerKg = (totalReplacementCost * annuityFactor) / totalHydrogenProduced;
-
+      const capexPerKg = (capex * annuity) / totalHydrogen;
+      const opexPerKg = capexPerKg * 0.03;
+      const numReplacements = Math.floor(lifetime / replacementFreq);
+      const replacementPerKg = (capex * (stackReplacement / 100) * numReplacements * annuity) / totalHydrogen;
       const waterCostPerKg = waterCost * waterConsumption;
-      const lcohGross = electricityCostPerKg + baseCapexPerKg + opexPerKg + replacementPerKg + waterCostPerKg;
-      const totalCredits = o2Revenue + co2Price + additionalRevenue;
-      const lcohNet = lcohGross - totalCredits;
+
+      // Compression energy per kg (kWh/kg) based on ideal gas formula
+      const lnRatio = Math.log(pOut / pIn);
+      const compressWork = (cp * 1000 * T / (k - 1)) * (Math.pow(pOut / pIn, (k - 1) / k) - 1); // J/kg
+      const compressKWh = compressWork / 3.6e6; // Convert to kWh/kg
+      const compressCost = compressKWh * (electricityPrice / 1000);
+
+      const grossLCOH = electricityCostPerKg + capexPerKg + opexPerKg + replacementPerKg + waterCostPerKg + compressCost;
+      const credits = o2Revenue + co2Price + additionalRevenue;
+      const netLCOH = grossLCOH - credits;
 
       document.getElementById('output').innerHTML = `
         <h2>Results</h2>
-        <p><strong>Gross LCOH:</strong> €${lcohGross.toFixed(2)} / kg H₂</p>
-        <p><strong>Net LCOH (after credits):</strong> €${lcohNet.toFixed(2)} / kg H₂</p>
-        <p><strong>Electricity Cost:</strong> €${electricityCostPerKg.toFixed(2)} / kg</p>
-        <p><strong>CAPEX Cost:</strong> €${baseCapexPerKg.toFixed(2)} / kg</p>
-        <p><strong>OPEX Cost:</strong> €${opexPerKg.toFixed(2)} / kg</p>
-        <p><strong>Replacement Cost:</strong> €${replacementPerKg.toFixed(2)} / kg</p>
-        <p><strong>Water Cost:</strong> €${waterCostPerKg.toFixed(2)} / kg</p>
-        <p><strong>Credits (O₂, CO₂, Other):</strong> €${totalCredits.toFixed(2)} / kg</p>
+        <p><strong>Gross LCOH:</strong> €${grossLCOH.toFixed(2)} / kg H₂</p>
+        <p><strong>Net LCOH (after credits):</strong> €${netLCOH.toFixed(2)} / kg H₂</p>
       `;
 
       const ctx = document.getElementById('lcohChart').getContext('2d');
-      const data = {
-        labels: ['Electricity', 'CAPEX', 'OPEX', 'Replacement', 'Water', 'Credits'],
-        datasets: [{
-          label: 'LCOH Breakdown (€/kg H₂)',
-          data: [electricityCostPerKg, baseCapexPerKg, opexPerKg, replacementPerKg, waterCostPerKg, -totalCredits],
-          backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#00bcd4', '#f44336'],
-        }]
-      };
+      const labels = ['Electricity', 'CAPEX', 'OPEX', 'Stack Replacement', 'Water', 'Compression', 'Credits'];
+      const data = [electricityCostPerKg, capexPerKg, opexPerKg, replacementPerKg, waterCostPerKg, compressCost, -credits];
 
-      if (lcohChart) {
-        lcohChart.data = data;
-        lcohChart.update();
-      } else {
-        lcohChart = new Chart(ctx, {
-          type: 'bar',
-          data: data,
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
+      if (lcohChart) lcohChart.destroy();
+      lcohChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'LCOH Breakdown (€/kg H₂)',
+            data: data,
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800', '#9c27b0', '#00bcd4', '#f44336', '#9e9e9e']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: ctx => `${ctx.label}: €${ctx.raw.toFixed(2)}` } }
           }
-        });
-      }
+        }
+      });
     });
   </script>
 </body>

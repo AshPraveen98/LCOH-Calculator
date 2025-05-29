@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LCOH Calculator - Green Hydrogen</title>
+  <title>Levelized Cost of Hydrogen (LCOH)</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     const exchangeRates = {
@@ -12,12 +12,19 @@
       INR: 90
     };
 
+    const currencySymbols = {
+      EUR: '€',
+      USD: '$',
+      INR: '₹'
+    };
+
     async function fetchExchangeRates() {
       try {
-        const response = await fetch('https://api.exchangerate.host/latest?base=EUR&symbols=USD,INR');
+        const response = await fetch('https://api.exchangerate.host/latest?base=INR&symbols=USD,EUR');
         const data = await response.json();
         exchangeRates.USD = data.rates.USD;
-        exchangeRates.INR = data.rates.INR;
+        exchangeRates.EUR = data.rates.EUR;
+        exchangeRates.INR = 1;
       } catch (error) {
         console.warn('Failed to fetch live rates. Using fallback.');
       }
@@ -26,12 +33,12 @@
     function convertCurrencyAndUnits() {
       const selectedCurrency = document.getElementById('currency').value;
       const factor = exchangeRates[selectedCurrency];
-      const currencySymbols = { EUR: '€', USD: '$', INR: '₹' };
+      const baseFactor = exchangeRates['INR'];
 
       document.querySelectorAll('input').forEach(input => {
         const value = parseFloat(input.value);
         if (!isNaN(value) && input.type === 'number') {
-          input.value = (value * factor).toFixed(2);
+          input.value = ((value / baseFactor) * factor).toFixed(2);
         }
       });
 
@@ -56,6 +63,7 @@
     h1 {
       text-align: center;
       color: #006400;
+      font-size: 2em;
     }
     .input-group {
       display: flex;
@@ -102,15 +110,15 @@
   </style>
 </head>
 <body>
-  <h1>LCOH Calculator - Green Hydrogen</h1>
+  <h1>Levelized Cost of Hydrogen (LCOH)</h1>
 
   <div class="top-controls">
     <div>
       <label for="currency">Currency:</label>
       <select id="currency">
+        <option value="INR" selected>INR (₹)</option>
         <option value="EUR">EUR (€)</option>
         <option value="USD">USD ($)</option>
-        <option value="INR">INR (₹)</option>
       </select>
     </div>
     <button onclick="convertCurrencyAndUnits()">Convert Currency & Units</button>

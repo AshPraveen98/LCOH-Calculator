@@ -67,10 +67,35 @@
   </div>
 
   <form id="lcohForm">
-    <!-- Existing input fields remain unchanged -->
-    <!-- Copy the input fields from the previous version -->
-    <!-- For brevity, they are omitted here, but should be included -->
-    <!-- Button -->
+    <h2>System and Cost Inputs</h2>
+    <div class="input-group"><label>CAPEX Electrolyzer (€/kW):</label><input type="number" id="capex" value="800"/></div>
+    <div class="input-group"><label>Stack Replacement Cost (% of CAPEX):</label><input type="number" id="stackReplacement" value="15"/></div>
+    <div class="input-group"><label>Replacement Frequency (years):</label><input type="number" id="replacementFrequency" value="7"/></div>
+
+    <h2>Operation and Energy Inputs</h2>
+    <div class="input-group"><label>Electricity Price (€/MWh):</label><input type="number" id="electricity" value="70"/></div>
+    <div class="input-group"><label>Efficiency (%):</label><input type="number" id="efficiency" value="80"/></div>
+    <div class="input-group"><label>Full Load Hours (hours/year):</label><input type="number" id="fullLoad" value="4000"/></div>
+    <div class="input-group"><label>System Lifetime (years):</label><input type="number" id="lifetime" value="20"/></div>
+    <div class="input-group"><label>Discount Rate (%):</label><input type="number" id="discountRate" value="7"/></div>
+
+    <h2>Compression Parameters</h2>
+    <div class="input-group"><label>Compressor Output Pressure (bar):</label><input type="number" id="pOut" value="350"/></div>
+    <div class="input-group"><label>Compressor Input Pressure (bar):</label><input type="number" id="pIn" value="30"/></div>
+    <div class="input-group"><label>Compression Stages:</label><input type="number" id="stages" value="2"/></div>
+    <div class="input-group"><label>Adiabatic Coefficient (k):</label><input type="number" id="k" value="1.4"/></div>
+    <div class="input-group"><label>Ambient Temperature (K):</label><input type="number" id="temp" value="298"/></div>
+    <div class="input-group"><label>Specific Heat of H₂ (kJ/kg·K):</label><input type="number" id="cp" value="14.3"/></div>
+
+    <h2>Revenue and Water Inputs</h2>
+    <div class="input-group"><label>O₂ Sale Revenue (€/kg H₂):</label><input type="number" id="o2Revenue" value="0.5"/></div>
+    <div class="input-group"><label>Water Cost (€/m³):</label><input type="number" id="waterCost" value="2"/></div>
+    <div class="input-group"><label>Water Consumption (L/kg H₂):</label><input type="number" id="waterConsumption" value="10"/></div>
+
+    <h2>Financial Credits</h2>
+    <div class="input-group"><label>CO₂ Credit (€/kg H₂):</label><input type="number" id="co2Price" value="0"/></div>
+    <div class="input-group"><label>Other Revenue (€/kg H₂):</label><input type="number" id="additionalRevenue" value="0"/></div>
+
     <button type="submit">Calculate LCOH</button>
   </form>
 

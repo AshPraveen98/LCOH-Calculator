@@ -96,7 +96,12 @@
     const currencySymbol = '$';
 
     const fields = [
-      ['capex', 'CAPEX ($/kW)'],
+      ['plantSize', 'Plant Size (MW)'],
+      ['annualOutput', 'Hydrogen Output (tons/year)'],
+      ['capexElectrolyzer', 'CAPEX - Electrolyzer ($/kW)'],
+      ['capexBOP', 'CAPEX - BOP ($/kW)'],
+      ['capexCivil', 'CAPEX - Civil ($/kW)'],
+      ['capexInstallation', 'CAPEX - Installation ($/kW)'],
       ['stackReplacement', 'Stack Replacement (% of CAPEX)'],
       ['replacementFrequency', 'Replacement Frequency (years)'],
       ['electricity', 'Electricity Price ($/MWh)'],
@@ -109,7 +114,9 @@
       ['waterConsumption', 'Water Consumption (L/kg H₂)'],
       ['co2Price', 'CO₂ Credit ($/kg H₂)'],
       ['additionalRevenue', 'Other Revenue ($/kg H₂)'],
-      ['compressionCost', 'Compression Cost ($/kg H₂)']
+      ['compressionCost', 'Compression Cost ($/kg H₂)'],
+      ['opex', 'Operational Expenditure (OPEX) ($/kg H₂)'],
+      ['h2Price', 'Hydrogen Selling Price ($/kg H₂)']
     ];
 
     const container = document.getElementById('systemsContainer');
@@ -145,6 +152,7 @@
         values[id] = isNaN(parseFloat(val)) ? 0 : parseFloat(val);
       });
 
+      const plantSizeKW = values.plantSize * 1000;
       const efficiency = values.efficiency > 0 ? values.efficiency / 100 : 0.01;
       const discountRate = values.discountRate / 100;
       const annuityFactor = discountRate === 0
@@ -152,21 +160,27 @@
         : (discountRate * Math.pow(1 + discountRate, values.lifetime)) /
           (Math.pow(1 + discountRate, values.lifetime) - 1);
 
-      const totalHydrogenProduced = (values.fullLoad * efficiency * values.lifetime) / 55.5;
+      const totalCapex = values.capexElectrolyzer + values.capexBOP + values.capexCivil + values.capexInstallation;
+      const totalHydrogenProduced = (plantSizeKW * values.fullLoad * efficiency * values.lifetime) / 55.5;
       const electricityCostPerKg = ((values.electricity / 1000) * (1 / efficiency) * 55.5);
-      const baseCapexPerKg = ((values.capex * annuityFactor) / totalHydrogenProduced);
-      const opexPerKg = baseCapexPerKg * 0.03;
+      const baseCapexPerKg = ((totalCapex * annuityFactor) / totalHydrogenProduced);
+      const opexPerKg = values.opex;
       const numReplacements = Math.floor(values.lifetime / values.replacementFrequency);
-      const replacementCost = Array.from({ length: numReplacements }, (_, i) => (values.capex * (values.stackReplacement / 100)) / Math.pow(1 + discountRate, values.replacementFrequency * (i + 1))).reduce((a, b) => a + b, 0);
+      const replacementCost = Array.from({ length: numReplacements }, (_, i) => (totalCapex * (values.stackReplacement / 100)) / Math.pow(1 + discountRate, values.replacementFrequency * (i + 1))).reduce((a, b) => a + b, 0);
       const replacementPerKg = (replacementCost / totalHydrogenProduced);
       const waterCostPerKg = (values.waterCost * values.waterConsumption / 1000);
       const compressionPerKg = values.compressionCost;
       const totalCost = electricityCostPerKg + baseCapexPerKg + opexPerKg + replacementPerKg + waterCostPerKg + compressionPerKg;
       const totalRevenue = values.o2Revenue + values.co2Price + values.additionalRevenue;
       const netLCOH = totalCost - totalRevenue;
+      const profit = values.h2Price - netLCOH;
+      const annualH2Output = (plantSizeKW * values.fullLoad * efficiency) / 55.5;
 
       const output = `
 System ${system} - Levelized Cost of Hydrogen (LCOH):
+
+Plant Size: ${values.plantSize} MW
+Annual Hydrogen Output: ${annualH2Output.toFixed(0)} kg/year
 
 Electricity Cost: ${currencySymbol}${electricityCostPerKg.toFixed(2)}
 CAPEX Cost: ${currencySymbol}${baseCapexPerKg.toFixed(2)}
@@ -176,53 +190,32 @@ Water Cost: ${currencySymbol}${waterCostPerKg.toFixed(2)}
 Compression Cost: ${currencySymbol}${compressionPerKg.toFixed(2)}
 Revenue Offset: -${currencySymbol}${totalRevenue.toFixed(2)}
 
-Total LCOH: ${currencySymbol}${netLCOH.toFixed(2)} / kg H₂`;
+Total LCOH: ${currencySymbol}${netLCOH.toFixed(2)} / kg H₂
+Selling Price: ${currencySymbol}${values.h2Price.toFixed(2)} / kg H₂
+Profit: ${currencySymbol}${profit.toFixed(2)} / kg H₂`;
 
       document.getElementById(`output_${system}`).innerText = output;
 
       const ctx = document.getElementById(`chart_${system}`).getContext('2d');
       if (charts[system]) charts[system].destroy();
       charts[system] = new Chart(ctx, {
-        type: 'bar',
+        type: 'pie',
         data: {
           labels: ['Electricity', 'CAPEX', 'OPEX', 'Replacement', 'Water', 'Compression', 'Revenue Offset'],
           datasets: [{
             label: `System ${system} LCOH Breakdown`,
             data: [electricityCostPerKg, baseCapexPerKg, opexPerKg, replacementPerKg, waterCostPerKg, compressionPerKg, -totalRevenue],
-            backgroundColor: ['#28a745', '#007bff', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#dc3545'],
-            borderRadius: 6,
-            barPercentage: 0.8,
-            categoryPercentage: 0.7
+            backgroundColor: ['#28a745', '#007bff', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#dc3545']
           }]
         },
         options: {
           responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: `Cost (${currencySymbol}/kg H₂)`
-              },
-              grid: {
-                color: '#ccc'
-              }
-            },
-            x: {
-              grid: {
-                display: false
-              }
-            }
-          },
           plugins: {
-            legend: { display: false },
+            legend: { position: 'right' },
             title: {
               display: true,
               text: `LCOH Cost Components - System ${system}`,
-              padding: {
-                top: 10,
-                bottom: 30
-              }
+              padding: { top: 10, bottom: 30 }
             },
             tooltip: {
               backgroundColor: 'rgba(0,0,0,0.8)',

@@ -88,18 +88,20 @@
       const waterConsumption = parseFloat(document.getElementById('waterConsumption').value) / 1000;
       const co2Price = parseFloat(document.getElementById('co2Price').value);
       const additionalRevenue = parseFloat(document.getElementById('additionalRevenue').value);
+
       const annuityFactor = (discountRate * Math.pow(1 + discountRate, lifetime)) / (Math.pow(1 + discountRate, lifetime) - 1);
       const totalHydrogenProduced = (fullLoadHours * efficiency * lifetime) / 55.5;
       const electricityCostPerKg = ((electricityPrice / 1000) * (1 / efficiency) * 55.5) * exchangeRate;
       const baseCapexPerKg = ((capex * annuityFactor) / totalHydrogenProduced) * exchangeRate;
       const opexPerKg = baseCapexPerKg * 0.03;
       const numReplacements = Math.floor(lifetime / replacementFrequency);
-      const replacementCost = (capex * (stackReplacementPercent / 100)) * numReplacements * Math.pow(1 + discountRate, -replacementFrequency);
+      const replacementCost = Array.from({ length: numReplacements }, (_, i) => (capex * (stackReplacementPercent / 100)) / Math.pow(1 + discountRate, replacementFrequency * (i + 1))).reduce((a, b) => a + b, 0);
       const replacementPerKg = (replacementCost / totalHydrogenProduced) * exchangeRate;
       const waterCostPerKg = (waterCost * waterConsumption) * exchangeRate;
       const totalCost = electricityCostPerKg + baseCapexPerKg + opexPerKg + replacementPerKg + waterCostPerKg;
       const totalRevenue = o2Revenue + co2Price + additionalRevenue;
       const netLCOH = totalCost - totalRevenue * exchangeRate;
+
       const output = `
 Levelized Cost of Hydrogen (LCOH):
 
@@ -111,7 +113,9 @@ Water Cost: ${currencySymbol}${waterCostPerKg.toFixed(2)}
 Revenue Offset: -${currencySymbol}${(totalRevenue * exchangeRate).toFixed(2)}
 
 Total LCOH: ${currencySymbol}${netLCOH.toFixed(2)} / kg H₂`;
+
       document.getElementById('output').innerText = output;
+
       const ctx = document.getElementById('lcohChart').getContext('2d');
       if (lcohChart) lcohChart.destroy();
       lcohChart = new Chart(ctx, {

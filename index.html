@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Levelized Cost of Hydrogen (LCOH)</title>
+  <title>Levelized Cost of Hydrogen (LCOH) Comparison</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -89,7 +89,7 @@
 </head>
 <body>
   <header>
-    <h1>Levelized Cost of Hydrogen (LCOH)</h1>
+    <h1>Levelized Cost of Hydrogen (LCOH) Comparison</h1>
     <div class="copyright">&copy; Ashwin Praveen</div>
   </header>
 
@@ -116,7 +116,6 @@
       ['o2Revenue', 'O₂ Revenue ($/kg H₂)'],
       ['waterCost', 'Water Cost ($/m³)'],
       ['waterConsumption', 'Water Consumption (L/kg H₂)'],
-      ['co2Price', 'CO₂ Credit ($/kg H₂)'],
       ['additionalRevenue', 'Other Revenue ($/kg H₂)'],
       ['compressionCost', 'Compression Cost ($/kg H₂)'],
       ['opex', 'Operational Expenditure (OPEX) ($/kg H₂)'],
@@ -178,7 +177,7 @@
       const waterCostPerKg = (values.waterCost * values.waterConsumption / 1000);
       const compressionPerKg = values.compressionCost;
       const totalCost = electricityCostPerKg + baseCapexPerKg + opexPerKg + replacementPerKg + waterCostPerKg + compressionPerKg;
-      const totalRevenue = values.o2Revenue + values.co2Price + values.additionalRevenue;
+      const totalRevenue = values.o2Revenue + values.additionalRevenue;
       const netLCOH = totalCost - totalRevenue;
       const profit = values.h2Price - netLCOH;
       const annualH2Output = (plantSizeKW * values.fullLoad * efficiency) / 55.5;

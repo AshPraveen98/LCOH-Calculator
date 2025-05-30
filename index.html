@@ -10,15 +10,18 @@
       font-family: Arial, sans-serif;
       background: #f4f4f9;
       padding: 20px;
-      max-width: 800px;
+      max-width: 1000px;
       margin: auto;
+    }
+    header {
+      background-color: turquoise;
+      padding: 20px;
       text-align: center;
     }
-    h1 {
-      text-align: center;
-      color: #006400;
+    header h1 {
+      color: white;
       font-size: 2em;
-      margin-bottom: 20px;
+      margin: 0;
     }
     .input-group {
       display: flex;
@@ -58,14 +61,79 @@
     }
     canvas {
       max-width: 70%;
-      margin-top: 30px;
+      margin: 30px auto 0;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <h1>Levelized Cost of Hydrogen (LCOH)</h1>
+  <header>
+    <h1>Levelized Cost of Hydrogen (LCOH)</h1>
+  </header>
   <form id="lcohForm">
-    <!-- (inputs and other form elements remain unchanged) -->
+    <div class="input-group">
+      <label for="currencySymbol">Currency Symbol:</label>
+      <input type="text" id="currencySymbol" placeholder="€ or $ or ₹" />
+    </div>
+    <div class="input-group">
+      <label for="exchangeRate">Exchange Rate:</label>
+      <input type="number" id="exchangeRate" step="any" value="1" />
+    </div>
+    <div class="input-group">
+      <label for="capex">CAPEX (€/kW):</label>
+      <input type="number" id="capex" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="stackReplacement">Stack Replacement (% of CAPEX):</label>
+      <input type="number" id="stackReplacement" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="replacementFrequency">Replacement Frequency (years):</label>
+      <input type="number" id="replacementFrequency" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="electricity">Electricity Price (€/MWh):</label>
+      <input type="number" id="electricity" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="efficiency">Efficiency (%):</label>
+      <input type="number" id="efficiency" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="fullLoad">Full Load Hours (hours/year):</label>
+      <input type="number" id="fullLoad" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="lifetime">System Lifetime (years):</label>
+      <input type="number" id="lifetime" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="discountRate">Discount Rate (%):</label>
+      <input type="number" id="discountRate" step="any" required />
+    </div>
+    <div class="input-group">
+      <label for="o2Revenue">O₂ Revenue (€/kg H₂):</label>
+      <input type="number" id="o2Revenue" step="any" value="0" />
+    </div>
+    <div class="input-group">
+      <label for="waterCost">Water Cost (€/m³):</label>
+      <input type="number" id="waterCost" step="any" value="0" />
+    </div>
+    <div class="input-group">
+      <label for="waterConsumption">Water Consumption (L/kg H₂):</label>
+      <input type="number" id="waterConsumption" step="any" value="0" />
+    </div>
+    <div class="input-group">
+      <label for="co2Price">CO₂ Credit (€/kg H₂):</label>
+      <input type="number" id="co2Price" step="any" value="0" />
+    </div>
+    <div class="input-group">
+      <label for="additionalRevenue">Other Revenue (€/kg H₂):</label>
+      <input type="number" id="additionalRevenue" step="any" value="0" />
+    </div>
+    <div class="input-group" style="justify-content: center;">
+      <button type="submit">Calculate LCOH</button>
+    </div>
   </form>
   <div class="result" id="output"></div>
   <canvas id="lcohChart"></canvas>
